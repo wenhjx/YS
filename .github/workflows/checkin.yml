@@ -32,7 +32,9 @@ jobs:
         uses: actions/cache@v2
         with:
           path: cache
-          key: gc-cache-v2
+          key: gc-cache-v3-${{ github.run_id }}
+          restore-keys: |
+            gc-cache-v3-
 
       - name: Install dependencies
         run: yarn install
