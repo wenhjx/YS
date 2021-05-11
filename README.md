@@ -12,7 +12,7 @@
 
 1. 到 [Personal access tokens](https://github.com/settings/tokens) 生成一个 token，勾选 workflow 即可，然后写入 `ACCESS_TOKEN` secrets  
    ※ 只对新 fork 的仓库有效，如果你在看到本说明前已经出现问题，请参考下一条方案
-2. 如果你不愿意或不放心使用 token，可以自行同步主仓库，具体 git 命令我就不写了，如果懒的话也可以删除仓库重新 fork
+2. 如果你不愿意或不放心使用 token，可以自行同步主仓库，现在 GitHub 网页端添加了一个“Fetch upstream”功能，你可以直接在网页端完成同步
 
 项目建立初期修修补补可能有时会改到 workflow，稳定后应该就不会怎么动了
 
