@@ -10,7 +10,7 @@
 
 有两种解决方案：
 
-1. 到 [Personal access tokens](https://github.com/settings/tokens) 生成一个 token，勾选 workflow 即可，然后写入 `ACCESS_TOKEN` secrets  
+1. [点击此处](https://github.com/settings/tokens/new?description=genshin-mys-checkin&scopes=workflow)打开 personal token 生成页，默认会帮你填好 note 和自动勾选 workflow scope，生成然后写入 `ACCESS_TOKEN` secrets  
    ※ 只对新 fork 的仓库有效，如果你在看到本说明前已经出现问题，请参考下一条方案
 2. 如果你不愿意或不放心使用 token，可以自行同步主仓库，现在 GitHub 网页端添加了一个“Fetch upstream”功能，你可以直接在网页端完成同步
 
