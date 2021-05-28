@@ -174,6 +174,7 @@ module.exports = class WbClient {
       e => {
         _warn('签到请求失败，进行重试', e.toString());
       },
+      9,
     ).catch(e => {
       global.failed = true;
       _err('签到请求失败', e.toString());
