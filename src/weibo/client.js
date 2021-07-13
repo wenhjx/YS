@@ -4,7 +4,7 @@ const Fs = require('fs-extra');
 const Path = require('path');
 const axios = require('axios').default;
 const axiosCookieJarSupport = require('axios-cookiejar-support').default;
-const { Cookie, CookieJar } = require('tough-cookie');
+const { CookieJar } = require('tough-cookie');
 const { stringify } = require('qs');
 const { load } = require('cheerio');
 const md5 = require('md5');
@@ -24,7 +24,23 @@ const AXIOS_COMMON_CONFIG = {
 const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
 
 module.exports = class WbClient {
-  constructor({ alc, proxy }) {
+  constructor({ alc, proxy, aid, from, gsid, s }) {
+    if (gsid && s) {
+      this.appCheckinConfig = {
+        params: {
+          aid,
+          from,
+          gsid,
+          s,
+          c: 'weicoabroad',
+          request_url: `http://i.huati.weibo.com/mobile/super/active_fcheckin?pageid=${CONTAINER_ID}`,
+        },
+        headers: {
+          'user-agent': 'WeiboOverseas/4.3.5 (iPhone; iOS 14.6; Scale/3.00)',
+        },
+      };
+    }
+
     this.cookieCacheFile = Path.resolve(CACHE_DIR, `${md5(alc)}.cookie.json`);
     const httpsAgent = getAgent(proxy);
 
@@ -71,8 +87,8 @@ module.exports = class WbClient {
 
   async isLoggedin() {
     return (
-      (await retryPromise(() => this.check200('https://weibo.com/aj/account/watermark'))) &&
-      (await retryPromise(() => this.check200('https://ka.sina.com.cn/html5/mybox')))
+      (await retryPromise(() => this.check200('https://ka.sina.com.cn/html5/mybox'))) &&
+      (this.appCheckinConfig ? true : await retryPromise(() => this.check200('https://weibo.com/aj/account/watermark')))
     );
   }
 
@@ -96,7 +112,7 @@ module.exports = class WbClient {
     _log('登录中');
 
     const jumpUrl = await retryPromise(() =>
-      this.proxyAxios
+      this.axios
         .get('https://login.sina.com.cn/sso/login.php', {
           params: {
             url: 'https://weibo.com/ysmihoyo',
@@ -118,7 +134,7 @@ module.exports = class WbClient {
     if (!jumpUrl) throw new Error('登录失败[0]');
 
     const loginUrl = await retryPromise(() =>
-      this.proxyAxios.get(jumpUrl).then(({ data }) => {
+      this.axios.get(jumpUrl).then(({ data }) => {
         const search = /setCrossDomainUrlList\((.+?)\);/.exec(data);
         const json = search && search[1];
         try {
@@ -131,15 +147,17 @@ module.exports = class WbClient {
 
     if (!loginUrl) throw new Error('登录失败[1]');
 
-    await retryPromise(() =>
-      this.proxyAxios.get(loginUrl, {
-        params: {
-          callback: 'sinaSSOController.doCrossDomainCallBack',
-          scriptId: 'ssoscript0',
-          client: 'ssologin.js(v1.4.2)',
-        },
-      }),
-    );
+    if (!this.appCheckinConfig) {
+      await retryPromise(() =>
+        this.axios.get(loginUrl, {
+          params: {
+            callback: 'sinaSSOController.doCrossDomainCallBack',
+            scriptId: 'ssoscript0',
+            client: 'ssologin.js(v1.4.2)',
+          },
+        }),
+      );
+    }
 
     if (!(await this.isLoggedin())) throw new Error('登录失败[2]');
     _log('登录成功');
@@ -148,6 +166,10 @@ module.exports = class WbClient {
   }
 
   checkin() {
+    return this.appCheckinConfig ? this.checkinV2() : this.checkinV1();
+  }
+
+  checkinV1() {
     return retryPromise(
       () =>
         this.proxyAxios
@@ -171,6 +193,30 @@ module.exports = class WbClient {
                 return false;
             }
           }),
+      e => {
+        _warn('签到请求失败，进行重试', e.toString());
+      },
+      9,
+    ).catch(e => {
+      global.failed = true;
+      _err('签到请求失败', e.toString());
+    });
+  }
+
+  checkinV2() {
+    return retryPromise(
+      () =>
+        this.axios.get('https://api.weibo.cn/2/page/button', this.appCheckinConfig).then(async ({ data }) => {
+          switch (data.result) {
+            case 1:
+              _log('签到成功');
+              return true;
+            default:
+              global.failed = true;
+              _err('签到失败:', typeof data === 'string' ? data : JSON.stringify(_.pick(data, ['result', 'msg'])));
+              return false;
+          }
+        }),
       e => {
         _warn('签到请求失败，进行重试', e.toString());
       },
