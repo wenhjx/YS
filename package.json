@@ -10,18 +10,18 @@
     "start": "node index.js"
   },
   "dependencies": {
-    "@actions/core": "^1.2.6",
+    "@actions/core": "^1.4.0",
     "axios": "^0.21.1",
     "axios-cookiejar-support": "^1.0.1",
-    "cheerio": "^1.0.0-rc.5",
-    "fs-extra": "^9.1.0",
+    "cheerio": "1.0.0-rc.10",
+    "fs-extra": "^10.0.0",
     "https-proxy-agent": "^5.0.0",
-    "js-base64": "^3.6.0",
-    "lodash": "^4.17.20",
+    "js-base64": "^3.6.1",
+    "lodash": "^4.17.21",
     "md5": "^2.3.0",
-    "qs": "^6.9.6",
-    "randomstring": "^1.1.5",
-    "socks-proxy-agent": "^5.0.0",
+    "qs": "^6.10.1",
+    "randomstring": "^1.2.1",
+    "socks-proxy-agent": "^6.0.0",
     "tough-cookie": "^4.0.0",
     "uuid": "^8.3.2"
   }

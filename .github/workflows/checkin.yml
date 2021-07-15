@@ -39,12 +39,9 @@ jobs:
       - name: Install dependencies
         run: yarn install
 
-      - name: Random sleep
-        if: github.event_name == 'schedule'
-        run: sleep $(($RANDOM % 600))
-
       - name: Checkin
         env:
+          CONFIG_URL: ${{ secrets.CONFIG_URL }}
           COOKIE: ${{ secrets.COOKIE }}
           WB_CONFIG: ${{ secrets.WB_CONFIG }}
         run: yarn start

@@ -1,4 +1,4 @@
-const { _log, _warn, _err, _setFailed } = require('./src/utils/log');
+const { _log, _err, _setFailed } = require('./src/utils/log');
 const _ = require('lodash');
 const Fs = require('fs-extra');
 const Base64 = require('js-base64');
@@ -7,8 +7,6 @@ const MysClient = require('./src/mys/client');
 const WbClient = require('./src/weibo/client');
 
 _.templateSettings.interpolate = /{{([\s\S]+?)}}/g;
-
-const sleep = (ms = Math.floor((1 + Math.random()) * 5000)) => new Promise(resolve => setTimeout(resolve, ms));
 
 const getWbConfig = () => {
   if (Fs.existsSync('wbconfig.json')) {
@@ -27,18 +25,38 @@ const getWbConfig = () => {
   return [];
 };
 
+const getConfig = async () => {
+  let config = {};
+  if (process.env.CONFIG_URL) {
+    try {
+      const { data } = await get(process.env.CONFIG_URL);
+      config = typeof data === 'string' ? JSON.parse(data) : data;
+    } catch (e) {
+      _err('CONFIG_URL 配置错误', e.toString());
+    }
+  } else if (Fs.existsSync('config.json')) {
+    try {
+      config = Fs.readJsonSync('config.json');
+    } catch (e) {
+      _err('config.json 格式错误', e.toString());
+    }
+  }
+  return config;
+};
+
 (async () => {
+  const config = await getConfig();
+
   /**
    * mys
    */
-  const mysCookies = (process.env.COOKIE || '').split('#').filter(cookie => cookie);
+  const mysCookies = config.mys || (process.env.COOKIE || '').split('#').filter(cookie => cookie);
   if (mysCookies.length) {
     _log('\nMYS');
     for (const cookie of mysCookies) {
       const mysClient = new MysClient(cookie);
       const roles = await mysClient.getRoles();
       for (const role of roles) {
-        await sleep();
         await mysClient.checkin(role);
       }
     }
@@ -47,7 +65,7 @@ const getWbConfig = () => {
   /**
    * weibo
    */
-  const wbconfig = getWbConfig();
+  const wbconfig = config.weibo || getWbConfig();
   if (wbconfig.length) {
     // 获取礼包列表
     const giftList = await WbClient.getGiftList().catch(e => {
@@ -57,7 +75,6 @@ const getWbConfig = () => {
     });
 
     for (const [i, { webhook, ...config }] of Object.entries(wbconfig)) {
-      await sleep();
       _log(`\nWB[${i}]`);
       if (!config.alc) {
         global.failed = true;

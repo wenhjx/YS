@@ -170,6 +170,7 @@ module.exports = class WbClient {
   }
 
   checkinV1() {
+    _log('开始使用网页版 API 签到');
     return retryPromise(
       () =>
         this.proxyAxios
@@ -204,6 +205,7 @@ module.exports = class WbClient {
   }
 
   checkinV2() {
+    _log('开始使用国际版 API 签到');
     return retryPromise(
       () =>
         this.axios.get('https://api.weibo.cn/2/page/button', this.appCheckinConfig).then(async ({ data }) => {
