@@ -8,7 +8,7 @@
 
 > 旧版中配置 `COOKIE` 和 `WB_CONFIG` secrets 等使用方式依然支持，老用户不需要重新配置，如果要更新配置建议使用新配置方式
 
-在 GitHub Actions 中使用：
+**在 GitHub Actions 中使用：**
 
 1. Fork 本项目（顺便赏个 star 就更好了）
 2. 前往 Actions 页面启用 GitHub Actions
@@ -24,7 +24,7 @@
 >
 > 目前计划将本项目改造为可以在 Cloudflare Worker 上使用的版本，届时会新起一个仓库，完成后我会在这里说明
 
-在本地使用：
+**在本地使用：**
 
 1. 安装 Node.js
 2. Clone 本项目
@@ -44,12 +44,12 @@
   "weibo": [
     {
       "alc": "",
-      "proxy": "",
       "aid": "",
       "from": "",
       "gsid": "",
       "s": "",
-      "webhook": ""
+      "webhook": "",
+      "proxy": ""
     }
   ]
 }
