@@ -24,12 +24,11 @@ const AXIOS_COMMON_CONFIG = {
 const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
 
 module.exports = class WbClient {
-  constructor({ alc, proxy, aid, from, gsid, s }) {
-    if (gsid && s) {
+  constructor({ alc, proxy, aid, gsid, s }) {
+    if (aid && gsid && s) {
       this.appCheckinConfig = {
         params: {
           aid,
-          from,
           gsid,
           s,
           c: 'weicoabroad',
