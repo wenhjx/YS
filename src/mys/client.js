@@ -3,6 +3,7 @@ const _ = require('lodash');
 const { get, post } = require('axios').default;
 const dvid = require('./dvid');
 const ds = require('./ds');
+const retryPromise = require('../utils/retryPromise');
 
 const act_id = 'e202009291139501';
 
@@ -23,47 +24,55 @@ module.exports = class MysClient {
   }
 
   getRoles() {
-    return get('https://api-takumi.mihoyo.com/binding/api/getUserGameRolesByCookie?game_biz=hk4e_cn', {
-      headers: this.headers,
-    })
-      .then(({ data }) => {
-        const list = _.get(data, 'data.list');
-        if (!list) {
-          global.failed = true;
-          _err(JSON.stringify(data));
-          return;
-        }
-        return list;
-      })
-      .catch(e => {
-        global.failed = true;
-        _err('角色信息请求失败', e.toString());
-        return [];
-      });
+    return retryPromise(
+      () =>
+        get('https://api-takumi.mihoyo.com/binding/api/getUserGameRolesByCookie?game_biz=hk4e_cn', {
+          headers: this.headers,
+        }).then(({ data }) => {
+          const list = _.get(data, 'data.list');
+          if (!list) {
+            global.failed = true;
+            _err(JSON.stringify(data));
+            return;
+          }
+          return list;
+        }),
+      e => {
+        _warn('角色信息请求失败，进行重试', e.toString());
+      },
+    ).catch(e => {
+      global.failed = true;
+      _err('角色信息请求失败', e.toString());
+      return [];
+    });
   }
 
   checkin({ region, game_uid: uid, region_name }) {
-    return post(
-      'https://api-takumi.mihoyo.com/event/bbs_sign_reward/sign',
-      { act_id, region, uid },
-      { headers: { ...this.headers, ds: ds() } },
-    )
-      .then(({ data }) => {
-        (() => {
-          switch (data.retcode) {
-            case 0:
-              return _log;
-            case -5003:
-              return _warn;
-            default:
-              global.failed = true;
-              return _err;
-          }
-        })()(maskUid(uid), region_name, JSON.stringify(data));
-      })
-      .catch(e => {
-        global.failed = true;
-        _err(maskUid(uid), region_name, '签到请求失败', e.toString());
-      });
+    return retryPromise(
+      () =>
+        post(
+          'https://api-takumi.mihoyo.com/event/bbs_sign_reward/sign',
+          { act_id, region, uid },
+          { headers: { ...this.headers, ds: ds() } },
+        ).then(({ data }) => {
+          (() => {
+            switch (data.retcode) {
+              case 0:
+                return _log;
+              case -5003:
+                return _warn;
+              default:
+                global.failed = true;
+                return _err;
+            }
+          })()(maskUid(uid), region_name, JSON.stringify(data));
+        }),
+      e => {
+        _warn('签到请求失败，进行重试', e.toString());
+      },
+    ).catch(e => {
+      global.failed = true;
+      _err(maskUid(uid), region_name, '签到请求失败', e.toString());
+    });
   }
 };
