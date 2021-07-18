@@ -125,11 +125,11 @@
 2. 进入[这个页面](https://login.sina.com.cn/sso/test)，会 404，不用管
 3. F12 开发者工具 - Application - Cookies，将 `ALC` 的值填入即可
 
-#### `aid` `gsid` `s`
+#### `aid` `gsid` `s`（可选）
 
 只有提供了这几项配置才会使用微博**国际版**客户端 API 进行签到
 
-需要通过抓微博国际版客户端的包得到，我只能说懂得都懂
+需要通过抓微博国际版客户端的包得到，我只能说懂的都懂
 
 我个人习惯使用 [whistle](https://github.com/avwo/whistle)
 
@@ -141,6 +141,8 @@
 - `{{name}}` - 礼包名
 - `{{code}}` - 兑换码
 - `{{index}}` - 账户序号，从 0 开始
+
+注意 URL 参数中除了上述占位符外的内容都应该进行 URL 编码
 
 ※ 你可以使用 [Server酱](http://sc.ftqq.com/3.version) 或 [IFTTT](https://ifttt.com/) 之类的工具推送至微信或 Telegram 等
 
