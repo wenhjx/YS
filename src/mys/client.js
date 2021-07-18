@@ -50,7 +50,7 @@ module.exports = class MysClient {
     return retryPromise(
       () =>
         this.axios
-          .post('/event/bbs_sign_reward/sign', { act_id, region, uid }, { headers: { ...this.headers, ds: ds() } })
+          .post('/event/bbs_sign_reward/sign', { act_id, region, uid }, { headers: { ds: ds() } })
           .then(({ data }) => {
             (() => {
               switch (data.retcode) {
