@@ -14,6 +14,7 @@ const retryPromise = require('../utils/retryPromise');
 const CACHE_DIR = Path.resolve(__dirname, '../../cache/');
 const CONTAINER_ID = '100808fc439dedbb06ca5fd858848e521b8716';
 const AXIOS_COMMON_CONFIG = {
+  timeout: 10000,
   headers: {
     'user-agent':
       'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/88.0.4324.96 Safari/537.36',
@@ -94,9 +95,7 @@ module.exports = class WbClient {
   login() {
     return retryPromise(
       () => this._login().then(() => true),
-      e => {
-        _warn('登录失败，进行重试', e.toString());
-      },
+      e => _warn('登录失败，进行重试', e.toString()),
     ).catch(e => {
       _err('登录失败', e.toString());
       return false;
@@ -193,9 +192,7 @@ module.exports = class WbClient {
                 return false;
             }
           }),
-      e => {
-        _warn('签到请求失败，进行重试', e.toString());
-      },
+      e => _warn('签到请求失败，进行重试', e.toString()),
       9,
     ).catch(e => {
       global.failed = true;
@@ -218,9 +215,7 @@ module.exports = class WbClient {
               return false;
           }
         }),
-      e => {
-        _warn('签到请求失败，进行重试', e.toString());
-      },
+      e => _warn('签到请求失败，进行重试', e.toString()),
       9,
     ).catch(e => {
       global.failed = true;
@@ -229,7 +224,7 @@ module.exports = class WbClient {
   }
 
   async getMyGiftBox() {
-    const { data } = await this.axios.get('https://ka.sina.com.cn/html5/mybox');
+    const { data } = await retryPromise(() => this.axios.get('https://ka.sina.com.cn/html5/mybox'));
     const $ = load(data);
     return Array.from($('.gift-box .deleBtn')).map(el => $(el).attr('data-itemid'));
   }
@@ -274,13 +269,16 @@ module.exports = class WbClient {
   }
 
   static async getGiftList() {
-    const { data } = await axios.get(`https://m.weibo.cn/api/container/getIndex`, {
-      params: {
-        containerid: `${CONTAINER_ID}_-_feed`,
-        luicode: '10000011',
-        lfid: '100103type=1&q=原神',
-      },
-    });
+    const { data } = await retryPromise(() =>
+      axios.get(`https://m.weibo.cn/api/container/getIndex`, {
+        timeout: 10000,
+        params: {
+          containerid: `${CONTAINER_ID}_-_feed`,
+          luicode: '10000011',
+          lfid: '100103type=1&q=原神',
+        },
+      }),
+    );
 
     const list = (() => {
       for (const { card_group } of data.data.cards) {
