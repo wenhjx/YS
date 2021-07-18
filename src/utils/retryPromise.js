@@ -7,7 +7,7 @@ const sleep = require('./sleep');
  * @param {(e: Error) => any} [onError]
  * @param {number} [retry]
  */
-const retryPromise = (fn, onError = () => {}, retry = 4) =>
+const retryPromise = (fn, onError = () => {}, retry = 9) =>
   fn().catch(async e => {
     if (retry <= 0) throw e;
     onError(e);
