@@ -25,13 +25,14 @@ const AXIOS_COMMON_CONFIG = {
 const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
 
 module.exports = class WbClient {
-  constructor({ alc, proxy, aid, gsid, s }) {
+  constructor({ alc, proxy, aid, gsid, s, from }) {
     if (aid && gsid && s) {
       this.appCheckinConfig = {
         params: {
           aid,
           gsid,
           s,
+          from,
           c: 'weicoabroad',
           request_url: `http://i.huati.weibo.com/mobile/super/active_fcheckin?pageid=${CONTAINER_ID}`,
         },
