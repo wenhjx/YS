@@ -5,6 +5,7 @@ const Base64 = require('js-base64');
 const { get } = require('axios').default;
 const MysClient = require('./src/mys/client');
 const WbClient = require('./src/weibo/client');
+const sleep = require('./src/utils/sleep');
 
 _.templateSettings.interpolate = /{{([\s\S]+?)}}/g;
 
@@ -58,6 +59,7 @@ const getConfig = async () => {
       const roles = await mysClient.getRoles();
       for (const role of roles) {
         await mysClient.checkin(role);
+        await sleep(3000);
       }
     }
   }
