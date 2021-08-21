@@ -6,7 +6,7 @@
 
 ## 使用方法
 
-> 旧版中配置 `COOKIE` 和 `WB_CONFIG` secrets 等使用方式依然支持，老用户不需要重新配置，如果要更新配置建议使用新配置方式
+> 旧版配置 `COOKIE` 和 `WB_CONFIG` secrets 等使用方式依然支持，老用户不需要重新配置，如果要更新配置建议使用新配置方式
 
 **在 GitHub Actions 中使用：**
 
@@ -142,7 +142,7 @@
 - `{{code}}` - 兑换码
 - `{{index}}` - 账户序号，从 0 开始
 
-注意 URL 参数中除了上述占位符外的内容都应该进行 URL 编码
+注意 URL 参数中除了上述占位符外的内容都应该进行 URL 编码()
 
 ※ 你可以使用 [Server酱](http://sc.ftqq.com/3.version) 或 [IFTTT](https://ifttt.com/) 之类的工具推送至微信或 Telegram 等
 
